@@ -1,0 +1,22 @@
+source = ":inline"
+
+[[targets]]
+name = "mac claude"
+path = "/Users/mark/.claude/CLAUDE.md"
+footer = "当前环境为macOS"
+
+[[targets]]
+name = "mac iflow"
+path = "/Users/mark/.iflow/IFLOW.md"
+header = "## iFlow Added Memories"
+
+[[targets]]
+name = "mac codex"
+path = "/Users/mark/.codex/AGENTS.md"
+footer = """
+环境:
+- 操作系统: macOS
+- Shell: 默认终端
+编码: 文件统一使用 UTF-8
+脚本默认以无参数运行
+"""

@@ -15,8 +15,14 @@ def write(path: Path, content: str) -> Path:
 
 def test_default_config_points_to_project_root() -> None:
     module_root = Path(sync_module.__file__).resolve().parents[2]
-    assert sync_module.DEFAULT_CONFIG == module_root / "memory_targets.toml"
+    assert sync_module.DEFAULT_CONFIG.parent == module_root
+    assert sync_module.DEFAULT_CONFIG.name in {
+        "memory_targets_windows.toml",
+        "memory_targets_macos.toml",
+        "memory_targets.toml",
+    }
     assert sync_module.DEFAULT_CONFIG.is_absolute()
+    assert sync_module.DEFAULT_CONFIG.exists()
 
 
 def test_sync_creates_and_updates_targets(tmp_path: Path) -> None:

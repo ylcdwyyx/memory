@@ -17,10 +17,33 @@ except ModuleNotFoundError:  # pragma: no cover
 
 
 _MODULE_DIR = Path(__file__).resolve().parent
-DEFAULT_CONFIG = _MODULE_DIR.parents[1] / "memory_targets.toml"
+_PROJECT_ROOT = _MODULE_DIR.parents[1]
 
 RUNNING_ON_WINDOWS = sys.platform.startswith("win")
 RUNNING_ON_WSL = (not RUNNING_ON_WINDOWS) and "microsoft" in platform.release().lower()
+
+
+def _detect_default_config() -> Path:
+    """根据当前运行环境选择默认配置文件，优先使用存在的候选项。"""
+    candidates = []
+    if RUNNING_ON_WINDOWS or RUNNING_ON_WSL:
+        candidates.append(_PROJECT_ROOT / "memory_targets_windows.toml")
+
+    system_name = platform.system().lower()
+    if system_name == "darwin":
+        candidates.append(_PROJECT_ROOT / "memory_targets_macos.toml")
+
+    candidates.append(_PROJECT_ROOT / "memory_targets.toml")
+
+    for candidate in candidates:
+        if candidate.exists():
+            return candidate
+
+    # 如果都不存在，仍返回第一个候选项，交由后续逻辑抛出更明确的错误
+    return candidates[0]
+
+
+DEFAULT_CONFIG = _detect_default_config()
 
 # 默认内联记忆内容，用户可直接编辑此常量
 MEMORY_SOURCE = """始终保持回答中文,代码注释也中文
