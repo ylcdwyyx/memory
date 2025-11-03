@@ -1,0 +1,19 @@
+[project]
+name = "memory-sync"
+version = "0.1.0"
+description = "统一维护多款 AI 编程工具的用户记忆文件"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = []
+
+[project.scripts]
+memory-sync = "memory_sync.sync:main"
+
+[build-system]
+requires = ["uv_build>=0.9.2,<0.10.0"]
+build-backend = "uv_build"
+
+[dependency-groups]
+dev = [
+    "pytest>=8.4.2",
+]
