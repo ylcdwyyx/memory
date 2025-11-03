@@ -39,4 +39,4 @@ uv run python -m memory_sync.sync
 uv run pytest
 ```
 
-修改脚本后请立即执行测试，确保同步逻辑可靠。*** End Patch
+修改脚本后请立即执行测试，确保同步逻辑可靠。
