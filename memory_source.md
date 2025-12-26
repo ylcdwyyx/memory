@@ -2,7 +2,7 @@
 如果生成了文件作为工作的结果(不重要的文件不用打开),请使用默认应用打开以方便检查
 当前目录如果不是 Git 仓库, git init,代码修改之后存档git
 删除文件一定要告知
-使用Chrome DevTools MCP或者写playwright脚本时,接管9336端口的chrome实例
+使用 Chrome DevTools MCP 或写 Playwright 脚本时，接管 CHROME_DEVTOOLS_PORT（未设置为 9222）对应的 Chrome 实例
 最常用的mcp服务是Chrome DevTools MCP, 他是一个Model Context Protocol服务器，主要功能是让MCP客户端能够检查和调试浏览器实例
 每个项目要有readme,里面要包含项目文件的描述
 保持项目结构清晰简洁, 删除调试文件
