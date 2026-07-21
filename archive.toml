@@ -1,0 +1,14 @@
+[[targets]]
+name = "wsl cc"
+path = "//wsl.localhost/Ubuntu/home/lenovo/CLAUDE.md"
+footer = "当前环境为wsl2下的ubuntu的zsh"
+
+[[targets]]
+name = "wsl codex"
+path = "//wsl.localhost/Ubuntu/home/lenovo/.codex/AGENTS.md"
+footer = "当前环境为wsl2下的ubuntu的zsh"
+
+[[targets]]
+name = "win iflow"
+path = "C:/Users/lenovo/.iflow/IFLOW.md"
+header = "## iFlow Added Memories"

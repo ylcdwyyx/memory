@@ -1,4 +1,4 @@
-source = ":inline"
+source = "memory_source.md"
 
 [[targets]]
 name = "mac claude"

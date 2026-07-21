@@ -1,0 +1,18 @@
+#!/usr/bin/env sh
+# 跨项目 Git Hook 模板。当前调用方：wechat、wa、business、alibaba。
+set -u
+
+project_root=$(git rev-parse --show-toplevel) || exit 1
+cd "$project_root" || exit 1
+
+if ! command -v pwsh >/dev/null 2>&1; then
+    echo "[pre-commit] 未找到 pwsh，无法执行 scripts/verify.ps1。"
+    exit 1
+fi
+
+pwsh -NoProfile -ExecutionPolicy Bypass -File scripts/verify.ps1 -Scope fast
+status=$?
+if [ "$status" -ne 0 ]; then
+    echo "[pre-commit] 自动验收失败，已取消提交。"
+fi
+exit "$status"

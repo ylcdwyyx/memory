@@ -46,24 +46,7 @@ def _detect_default_config() -> Path:
 DEFAULT_CONFIG = _detect_default_config()
 
 # 默认内联记忆内容，用户可直接编辑此常量
-MEMORY_SOURCE = """始终保持回答中文,代码注释也中文
-如果生成了文件作为工作的结果,请使用默认应用打开以方便检查(每次只打开一个最重要的文件)
-如果任务比较复杂或任务重,先列出步骤让我确认而不是直接开干
-展开工作前先检查当前目录如果不是 Git 仓库,如非,git init并马上保存一次,代码修改之后存档git
-删除文件一定要告知
-使用Chrome DevTools MCP或者写playwright脚本时,接管9336端口的chrome实例,复用现有标签页而不是新开标签页
-最常用的mcp服务是Chrome DevTools MCP, 他是一个Model Context Protocol服务器，主要功能是让MCP客户端能够检查和调试浏览器实例
-每个项目要有readme,里面要包含项目文件的描述
-保持项目结构清晰简洁, 删除调试文件
-遇到的调试错误在总结时指出来
-脚本默认以无参数运行
-Chrome DevTools MCP是你查你看浏览器的眼睛,在写playwright时要多用它
-python:
-    - 用uv管理 Python, uv pip安装依赖
-    - 生成或修改的 Python 脚本马上运行并检查是否达到预期!!!!
-    - 所有参数都有非空默认值
-    - 若需要定位默认配置或资源文件，统一通过 Path(__file__).resolve() 向上定位到项目根目录，再拼接目标文件，避免依赖执行时的当前工作目录
-如果遇到失败(没有达到预期),列出整个链路并分析有可能的问题点
+MEMORY_SOURCE = """提出你认为更好的建议
 """
 
 _INLINE_SOURCE_SENTINELS = {":inline", "inline", ":embedded", "embedded"}
@@ -122,7 +105,10 @@ def _load_config(path: Path) -> tuple[Optional[Path], bool, list[TargetConfig]]:
 
     if raw_source is None:
         use_inline_source = True
-    elif isinstance(raw_source, str) and raw_source.strip().lower() in _INLINE_SOURCE_SENTINELS:
+    elif (
+        isinstance(raw_source, str)
+        and raw_source.strip().lower() in _INLINE_SOURCE_SENTINELS
+    ):
         use_inline_source = True
     elif isinstance(raw_source, str):
         source_path = _resolve_path(path.parent, Path(raw_source))
@@ -222,7 +208,9 @@ def _sync_single(target: TargetConfig, payload: str, dry_run: bool) -> SyncResul
         target.path.parent.mkdir(parents=True, exist_ok=True)
         target.path.write_text(new_content, encoding=target.encoding)
 
-    return SyncResult(path=target.path, changed=changed, dry_run=dry_run, created=created)
+    return SyncResult(
+        path=target.path, changed=changed, dry_run=dry_run, created=created
+    )
 
 
 def sync_memories(
@@ -235,7 +223,11 @@ def sync_memories(
     source_path, use_inline_source, targets = _load_config(config_path)
 
     if override_source is not None:
-        source_path = override_source if override_source.is_absolute() else override_source.resolve()
+        source_path = (
+            override_source
+            if override_source.is_absolute()
+            else override_source.resolve()
+        )
         use_inline_source = False
 
     if use_inline_source and override_source is None:

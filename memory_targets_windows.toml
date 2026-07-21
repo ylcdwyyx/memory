@@ -1,36 +1,50 @@
-source = ":inline"
+source = "memory_source.md"
 
 [[targets]]
-name = "win cc"
+name = "cc"
 path = "C:/Users/lenovo/.claude/CLAUDE.md"
-footer = "环境为Windows"
-
-[[targets]]
-name = "win iflow"
-path = "C:/Users/lenovo/.iflow/IFLOW.md"
-header = "## iFlow Added Memories"
-
-[[targets]]
-name = "win codex"
-path = "C:/Users/lenovo/.codex/AGENTS.md"
 footer = """
-环境:
-- 操作系统: Windows 11
-- Shell: PowerShell 7 (pwsh)，注意和 cmd.exe、Linux 下的 bash 有差异
-编码: CSV 文件保存为 UTF-8 with BOM (utf-8-sig)
-PowerShell 不支持 bash 风格的 heredoc (python - <<'PY')，请改用 here-string (@' ... '@) 或脚本文件。
-使用 python -c 时，必须注意引号层级：外层用单引号，内部 Python 用双引号。
-f-string 中嵌套引号建议用 row['field'] 写法避免冲突。
-输出包含制表符 \t、换行 \n 时，不要让 PowerShell 抢先解释，直接交给 Python。
-使用 uv pip install安装 Python 依赖
+环境为Windows
+不使用 taskkill 强制关闭进程导致正在进行的工作丢失
+
+Git 提交规则:
+- 创建 Git 提交时，提交信息末尾必须添加：Agent: Claude
+- 示例：git commit -m "修复同步逻辑" --trailer "Agent: Claude"
 """
 
 [[targets]]
-name = "wsl cc"
-path = "//wsl.localhost/Ubuntu/home/lenovo/CLAUDE.md"
-footer = "当前环境为wsl2下的ubuntu的zsh"
+name = "codex"
+path = "C:/Users/lenovo/.codex/AGENTS.md"
+footer = """
+不要使用子代理
+Git 提交规则:
+- 创建 Git 提交时，提交信息末尾必须添加：Agent: Codex
+- 示例：git commit -m "修复同步逻辑" --trailer "Agent: Codex"
+"""
 
 [[targets]]
-name = "wsl codex"
-path = "//wsl.localhost/Ubuntu/home/lenovo/.codex/AGENTS.md"
-footer = "当前环境为wsl2下的ubuntu的zsh"
+name = "trae cn"
+path = "C:/Users/lenovo/.trae-cn/user_rules/rule-1780277956460.md"
+footer = """
+Git 提交规则:
+- 创建 Git 提交时，提交信息末尾必须添加：Agent: Trae CN
+- 示例：git commit -m "修复同步逻辑" --trailer "Agent: Trae CN"
+"""
+
+[[targets]]
+name = "opencode"
+path = "C:/Users/lenovo/.config/opencode/AGENTS.md"
+footer = """
+Git 提交规则:
+- 创建 Git 提交时，提交信息末尾必须添加：Agent: OpenCode
+- 示例：git commit -m "修复同步逻辑" --trailer "Agent: OpenCode"
+"""
+
+[[targets]]
+name = "workbuddy"
+path = "C:/Users/lenovo/.workbuddy/MEMORY.md"
+footer = """
+Git 提交规则:
+- 创建 Git 提交时，提交信息末尾必须添加：Agent: WorkBuddy
+- 示例：git commit -m "修复同步逻辑" --trailer "Agent: WorkBuddy"
+"""
