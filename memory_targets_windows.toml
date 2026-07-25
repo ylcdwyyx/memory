@@ -48,3 +48,12 @@ Git 提交规则:
 - 创建 Git 提交时，提交信息末尾必须添加：Agent: WorkBuddy
 - 示例：git commit -m "修复同步逻辑" --trailer "Agent: WorkBuddy"
 """
+
+[[targets]]
+name = "accio work"
+path = "C:/Users/lenovo/.accio/accounts/1778786419/agents/DID-82AD6B-8382AD6BU1784857-8446-B9D8E0/agent-core/MEMORY.md"
+footer = """
+Git 提交规则:
+- 创建 Git 提交时，提交信息末尾必须添加：Agent: Accio Work
+- 示例：git commit -m "修复同步逻辑" --trailer "Agent: Accio Work"
+"""
