@@ -57,3 +57,22 @@ Git 提交规则:
 - 创建 Git 提交时，提交信息末尾必须添加：Agent: Accio Work
 - 示例：git commit -m "修复同步逻辑" --trailer "Agent: Accio Work"
 """
+
+[[targets]]
+name = "qwenwork"
+path = "C:/Users/lenovo/.qwenworkcn/awareness/main/AGENTS.md"
+footer = """
+MEMORY.md 与 USER.md 由内置 memory 工具专属管理，禁止用文件编辑方式直接修改。
+Git 提交规则:
+- 创建 Git 提交时，提交信息末尾必须添加：Agent: QwenWork
+- 示例：git commit -m "修复同步逻辑" --trailer "Agent: QwenWork"
+"""
+
+[[targets]]
+name = "opensquilla"
+path = "C:/Users/lenovo/AppData/Roaming/@opensquilla/desktop-electron/opensquilla/workspace/AGENTS.md"
+footer = """
+Git 提交规则:
+- 创建 Git 提交时，提交信息末尾必须添加：Agent: opensquilla
+- 示例：git commit -m "修复同步逻辑" --trailer "Agent: opensquilla"
+"""
