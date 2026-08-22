@@ -69,6 +69,15 @@ Git 提交规则:
 """
 
 [[targets]]
+name = "zcode"
+path = "C:/Users/lenovo/.zcode/AGENTS.md"
+footer = """
+Git 提交规则:
+- 创建 Git 提交时，提交信息末尾必须添加：Agent: ZCode
+- 示例：git commit -m "修复同步逻辑" --trailer "Agent: ZCode"
+"""
+
+[[targets]]
 name = "opensquilla"
 path = "C:/Users/lenovo/AppData/Roaming/@opensquilla/desktop-electron/opensquilla/workspace/AGENTS.md"
 footer = """

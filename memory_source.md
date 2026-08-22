@@ -28,9 +28,10 @@
 ## Git
 
 - 展开工作前检查 Git 状态与 diff；若当前目录不是 Git 仓库，先检查是否位于上级仓库内。
-- 不擅自执行 `git init`、暂存或提交；需要初始化或提交时先获得用户授权。
+- 不擅自执行 `git init`、暂存或提交；每完成一个独立任务就 commit 并 push
 - 提交时仅包含本次任务相关修改，不混入用户已有改动；空项目和临时项目不强制使用 Git。
 - 仓库装有 session hook（D:/py/common/git_hooks）时，带 Agent 尾注的提交会被自动追加 `Session:` 会话 ID，属正常现象，不要删除或修改。
+- `gh` 已登录 `ylcdwyyx` 且 `GITHUB_TOKEN` 已设置；push 报错/卡弹窗时先执行 `gh auth setup-git` 再试。
 
 ## 验证与排错
 
