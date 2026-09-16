@@ -76,6 +76,8 @@
 
 - 使用 Chrome DevTools MCP 或 Playwright 时，接管 `CHROME_DEVTOOLS_PORT` 指向的 Chrome 实例；未设置时使用端口 `9222`。
 - 优先复用现有浏览器实例和标签页，并使用 Chrome DevTools MCP 检查页面状态与调试问题。
+- 网页抓不到（404/403/需登录/正文不全）时，不要直接判定"打不开"：先按 `cdp-or-drissionpage-rule` 技能接管 9222 已登录 Chrome 取数。
+  curl/urllib 会被 Cloudflare challenge 拦，页面内 fetch 会撞跨域重定向——这两条失败都不能作为"拿不到"的结论。
 
 ## 环境
 
