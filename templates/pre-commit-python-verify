@@ -1,5 +1,8 @@
-#!/usr/bin/env sh
+#!/bin/sh
 # 跨项目 Git Hook 模板。当前调用方：wechat、wa、business、alibaba。
+# 注意：不要改回 "#!/usr/bin/env sh"。Git for Windows 下由 git commit 拉起钩子时，
+# env 在子进程 PATH 里找不到 sh（PATH 被重建为仅含 mingw64\bin），提交必然失败并报
+# "/usr/bin/env: 'sh': No such file or directory"；#!/bin/sh 由 MSYS 直接按安装根解析，稳定可用。
 set -u
 
 project_root=$(git rev-parse --show-toplevel) || exit 1
