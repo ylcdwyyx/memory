@@ -1,6 +1,8 @@
 .venv/
 .pytest_cache/
-.venv/
-.pytest_cache/
 __pycache__/
 *.lnk
+
+# WorkBuddy 以本仓库为工作区时会生成工作区记忆目录，不属于本仓库内容
+.workbuddy-ai/
+.workbuddy/

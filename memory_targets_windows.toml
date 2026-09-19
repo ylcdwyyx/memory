@@ -44,6 +44,7 @@ Git 提交规则:
 name = "workbuddy"
 path = "C:/Users/lenovo/.workbuddy/MEMORY.md"
 footer = """
+未经用户同意或用户主动要求,不得新建技能
 Git 提交规则:
 - 创建 Git 提交时，提交信息末尾必须添加：Agent: WorkBuddy
 - 示例：git commit -m "修复同步逻辑" --trailer "Agent: WorkBuddy"
@@ -84,4 +85,14 @@ footer = """
 Git 提交规则:
 - 创建 Git 提交时，提交信息末尾必须添加：Agent: opensquilla
 - 示例：git commit -m "修复同步逻辑" --trailer "Agent: opensquilla"
+"""
+
+[[targets]]
+name = "workbuddy ai"
+path = "C:/Users/lenovo/.workbuddy-ai/MEMORY.md"
+footer = """
+未经用户同意或用户主动要求,不得新建技能
+Git 提交规则:
+- 创建 Git 提交时，提交信息末尾必须添加：Agent: WorkBuddy
+- 示例：git commit -m "修复同步逻辑" --trailer "Agent: WorkBuddy"
 """
