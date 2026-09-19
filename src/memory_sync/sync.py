@@ -55,6 +55,11 @@ _INLINE_SOURCE_SENTINELS = {":inline", "inline", ":embedded", "embedded"}
 @dataclasses.dataclass(slots=True)
 class TargetConfig:
     path: Path
+    # 判断「该工具是否装在这台机器上」的锚点目录：不存在就整个目标跳过，不建任何目录。
+    # 默认取 path 的父目录；当目标文件位于工具内部的深层子目录时（如
+    # ~/.trae-cn/user_rules/xxx.md、~/.accio/accounts/<id>/agents/<did>/agent-core/MEMORY.md），
+    # 应在配置里显式把 tool_dir 指到工具根目录，这样工具在、子目录缺失时才允许按需创建。
+    tool_dir: Path
     header: Optional[str] = None
     footer: Optional[str] = None
     encoding: str = "utf-8"
@@ -66,8 +71,15 @@ class SyncResult:
     changed: bool
     dry_run: bool
     created: bool
+    skip_reason: Optional[str] = None
+
+    @property
+    def skipped(self) -> bool:
+        return self.skip_reason is not None
 
     def render_message(self) -> str:
+        if self.skipped:
+            return f"[未部署] {self.path} — {self.skip_reason}"
         if self.dry_run and self.changed:
             return f"[dry-run] {self.path} 将被更新"
         if self.dry_run:
@@ -130,10 +142,21 @@ def _load_config(path: Path) -> tuple[Optional[Path], bool, list[TargetConfig]]:
         header = entry.get("header")
         footer = entry.get("footer")
         encoding = entry.get("encoding", "utf-8")
+        raw_tool_dir = entry.get("tool_dir")
+        if raw_tool_dir is not None and not isinstance(raw_tool_dir, str):
+            raise ValueError(f"targets 第 {idx} 条的 tool_dir 必须是字符串")
+
+        target_path = _resolve_path(path.parent, Path(raw_path))
+        tool_dir = (
+            _resolve_path(path.parent, Path(raw_tool_dir))
+            if raw_tool_dir
+            else target_path.parent
+        )
 
         targets.append(
             TargetConfig(
-                path=_resolve_path(path.parent, Path(raw_path)),
+                path=target_path,
+                tool_dir=tool_dir,
                 header=header,
                 footer=footer,
                 encoding=encoding,
@@ -196,6 +219,16 @@ def _from_wsl_unc_path(text: str) -> Path:
 
 
 def _sync_single(target: TargetConfig, payload: str, dry_run: bool) -> SyncResult:
+    # 工具没装就整个跳过：既不写文件，也不替它把目录建出来（否则会在机器上留下空壳配置目录）
+    if not target.tool_dir.is_dir():
+        return SyncResult(
+            path=target.path,
+            changed=False,
+            dry_run=dry_run,
+            created=False,
+            skip_reason=f"工具不存在（{target.tool_dir} 缺失）",
+        )
+
     new_content = _compose_content(payload, target.header, target.footer)
     existing: Optional[str] = None
     if target.path.is_file():

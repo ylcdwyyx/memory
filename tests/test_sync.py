@@ -27,6 +27,8 @@ def test_default_config_points_to_project_root() -> None:
 
 def test_sync_creates_and_updates_targets(tmp_path: Path) -> None:
     source = write(tmp_path / "source.md", "核心内容")
+    # 工具目录先存在，才允许部署（新语义：不存在则跳过，见后面的 test_skips_*）
+    (tmp_path / "out").mkdir()
     config = tmp_path / "config.toml"
     config.write_text(
         """
@@ -54,6 +56,7 @@ footer = "Footer"
 
     assert all(result.changed for result in results)
     assert all(not result.dry_run for result in results)
+    assert not any(result.skipped for result in results)
 
 
 def test_dry_run_keeps_original_content(tmp_path: Path) -> None:
@@ -184,3 +187,140 @@ path = "out.txt"
 
     with pytest.raises(FileNotFoundError):
         sync_memories(config)
+
+
+def test_skips_target_when_tool_dir_missing(tmp_path: Path) -> None:
+    source = write(tmp_path / "source.md", "内容")
+    config = tmp_path / "config.toml"
+    config.write_text(
+        """
+source = "source.md"
+
+[[targets]]
+path = "absent_tool/AGENTS.md"
+""".strip(),
+        encoding="utf-8",
+    )
+
+    results = sync_memories(config)
+
+    assert results[0].skipped is True
+    assert results[0].changed is False
+    assert results[0].created is False
+    # 关键：不能替没装工具把目录建出来
+    assert not (tmp_path / "absent_tool").exists()
+    assert "[未部署]" in results[0].render_message()
+    assert source.exists()
+
+
+def test_tool_dir_allows_creating_nested_subdirs(tmp_path: Path) -> None:
+    write(tmp_path / "source.md", "内容")
+    (tmp_path / "tool").mkdir()
+    config = tmp_path / "config.toml"
+    config.write_text(
+        """
+source = "source.md"
+
+[[targets]]
+path = "tool/deep/nested/AGENTS.md"
+tool_dir = "tool"
+""".strip(),
+        encoding="utf-8",
+    )
+
+    results = sync_memories(config)
+
+    assert results[0].skipped is False
+    assert results[0].created is True
+    assert (tmp_path / "tool/deep/nested/AGENTS.md").read_text(encoding="utf-8") == "内容\n"
+
+
+def test_explicit_tool_dir_missing_skips_nested_target(tmp_path: Path) -> None:
+    write(tmp_path / "source.md", "内容")
+    config = tmp_path / "config.toml"
+    config.write_text(
+        """
+source = "source.md"
+
+[[targets]]
+path = "absent/deep/AGENTS.md"
+tool_dir = "absent"
+""".strip(),
+        encoding="utf-8",
+    )
+
+    results = sync_memories(config)
+
+    assert results[0].skipped is True
+    assert not (tmp_path / "absent").exists()
+
+
+def test_dry_run_reports_skip_without_creating_tool_dir(tmp_path: Path) -> None:
+    write(tmp_path / "source.md", "内容")
+    config = tmp_path / "config.toml"
+    config.write_text(
+        """
+source = "source.md"
+
+[[targets]]
+path = "absent/AGENTS.md"
+""".strip(),
+        encoding="utf-8",
+    )
+
+    results = sync_memories(config, dry_run=True)
+
+    assert results[0].skipped is True
+    assert results[0].dry_run is True
+    assert not (tmp_path / "absent").exists()
+
+
+def test_tool_dir_resolved_relative_to_config(tmp_path: Path) -> None:
+    write(tmp_path / "source.md", "内容")
+    config_dir = tmp_path / "cfg"
+    (config_dir / "tool").mkdir(parents=True)
+    config = config_dir / "config.toml"
+    config.write_text(
+        """
+source = "../source.md"
+
+[[targets]]
+path = "tool/AGENTS.md"
+tool_dir = "tool"
+""".strip(),
+        encoding="utf-8",
+    )
+
+    results = sync_memories(config)
+
+    assert results[0].skipped is False
+    assert (config_dir / "tool/AGENTS.md").exists()
+
+
+def test_tool_dir_must_be_string(tmp_path: Path) -> None:
+    write(tmp_path / "source.md", "内容")
+    config = tmp_path / "config.toml"
+    config.write_text(
+        """
+source = "source.md"
+
+[[targets]]
+path = "out/AGENTS.md"
+tool_dir = 123
+""".strip(),
+        encoding="utf-8",
+    )
+
+    with pytest.raises(ValueError):
+        sync_memories(config)
+
+
+def test_shipped_windows_config_tool_dir_is_ancestor_of_path() -> None:
+    """真实配置里每个目标的 tool_dir 都必须是 path 的祖先（或等于其父目录）。"""
+    config = Path(sync_module.__file__).resolve().parents[2] / "memory_targets_windows.toml"
+    _, _, targets = sync_module._load_config(config)
+
+    assert targets
+    for target in targets:
+        assert target.tool_dir.is_absolute(), target.path
+        assert target.tool_dir in target.path.parents, target.path

@@ -1,1 +1,3 @@
-memory-sync-manager 通过 `memory_source.md` 统一维护多款 AI 编程工具的共有规则，并通过memory_targets_windows.toml目标配置中的 `header`、`footer` 保留各工具的专属规则，避免重复维护。
+memory-sync-manager 通过 `memory_source.md` 统一维护多款 AI 编程工具的共有规则，并通过 `memory_targets_windows.toml` 目标配置中的 `header`、`footer` 保留各工具的专属规则，避免重复维护。
+
+不变量：每个目标先看 `tool_dir`（默认取 `path` 的父目录）是否存在——不存在就跳过，**不得**替未安装的工具创建目录。

@@ -1,3 +1,7 @@
+# tool_dir（可选）：判断「该工具是否装在这台机器上」的锚点目录。
+# 目录不存在 → 整个目标跳过，既不写文件也不替它建目录（避免在新机器上留下空壳配置目录）。
+# 默认取 path 的父目录；当目标文件位于工具内部的深层子目录时，需显式指到工具根目录，
+# 这样「工具在、子目录缺失」时才允许按需创建（见 trae cn / accio work / qwenwork / opensquilla）。
 source = "memory_source.md"
 
 [[targets]]
@@ -25,6 +29,7 @@ Git 提交规则:
 [[targets]]
 name = "trae cn"
 path = "C:/Users/lenovo/.trae-cn/user_rules/rule-1780277956460.md"
+tool_dir = "C:/Users/lenovo/.trae-cn"
 footer = """
 Git 提交规则:
 - 创建 Git 提交时，提交信息末尾必须添加：Agent: Trae CN
@@ -53,6 +58,7 @@ Git 提交规则:
 [[targets]]
 name = "accio work"
 path = "C:/Users/lenovo/.accio/accounts/1778786419/agents/DID-82AD6B-8382AD6BU1784857-8446-B9D8E0/agent-core/MEMORY.md"
+tool_dir = "C:/Users/lenovo/.accio"
 footer = """
 Git 提交规则:
 - 创建 Git 提交时，提交信息末尾必须添加：Agent: Accio Work
@@ -62,6 +68,7 @@ Git 提交规则:
 [[targets]]
 name = "qwenwork"
 path = "C:/Users/lenovo/.qwenworkcn/awareness/main/AGENTS.md"
+tool_dir = "C:/Users/lenovo/.qwenworkcn"
 footer = """
 MEMORY.md 与 USER.md 由内置 memory 工具专属管理，禁止用文件编辑方式直接修改。
 Git 提交规则:
@@ -81,6 +88,7 @@ Git 提交规则:
 [[targets]]
 name = "opensquilla"
 path = "C:/Users/lenovo/AppData/Roaming/@opensquilla/desktop-electron/opensquilla/workspace/AGENTS.md"
+tool_dir = "C:/Users/lenovo/AppData/Roaming/@opensquilla"
 footer = """
 Git 提交规则:
 - 创建 Git 提交时，提交信息末尾必须添加：Agent: opensquilla

@@ -2,6 +2,8 @@
 
 memory-sync-manager 通过 `memory_source.md` 统一维护多款 AI 编程工具的共有规则，并通过目标配置中的 `header`、`footer` 保留各工具的专属规则，避免重复维护。
 
+**只给已安装的工具部署**：每个目标都有一个「工具锚点目录」（`tool_dir`，默认取 `path` 的父目录）。锚点不存在就整个跳过——既不写文件，也不替它把目录建出来，所以在新机器上跑同步不会留下一堆空壳配置目录。
+
 ## 文件结构
 
 - `.gitignore`：忽略本地虚拟环境与临时缓存。
@@ -10,15 +12,17 @@ memory-sync-manager 通过 `memory_source.md` 统一维护多款 AI 编程工具
 - `memory_source.md`：各 Agent 共用的规则源。
 - `memory_targets_windows.toml`：Windows/WSL 环境默认目标配置。
 - `memory_targets_macos.toml`：macOS 环境默认目标配置。
+- `archive.toml`：已停用的目标归档（WSL、iFlow），需要时用 `--config` 手动指定。
 - `src/memory_sync/sync.py`：核心同步脚本与命令行入口，内联 `MEMORY_SOURCE` 供快速编辑。
 - `tests/test_sync.py`：针对同步流程的 pytest 覆盖。
-- `examples/`：示例输出目录，实际运行时会在此生成示例工具的记忆文件。
+- `templates/`：给其他项目复用的验收模板（pre-commit、PowerShell 校验脚本）。
 
 ## 快速开始
 
 1. 在 `memory_source.md` 中维护所有 Agent 都应遵守的共有规则。
 2. 修改当前系统会使用的配置文件（Windows/WSL 对应 `memory_targets_windows.toml`，macOS 对应 `memory_targets_macos.toml`），将 `path` 指向各工具的用户记忆文件；使用可选字段 `header`、`footer` 维护工具专属规则。
    - 在 WSL 中可以直接填写 Windows 风格路径（如 `C:/Users/...`），脚本会自动转换为 `/mnt/c/...`。
+   - 可选字段 `tool_dir`：该工具是否「装在这台机器上」的锚点目录，不存在则跳过该目标。**默认取 `path` 的父目录**，多数工具（`~/.claude/CLAUDE.md`、`~/.codex/AGENTS.md` 这类）不用写；当目标文件位于工具内部的深层子目录时（如 `~/.trae-cn/user_rules/x.md`、`~/.accio/accounts/<id>/agents/<did>/agent-core/MEMORY.md`），必须显式指到工具根目录，这样「工具在、子目录缺失」时才允许按需创建。
 3. 执行同步：
 
 ```bash
@@ -31,6 +35,10 @@ uv run python -m memory_sync.sync
 - `--source <path>`：临时指定不同的源文件。
 - `--dry-run`：预览需要更新的文件，不真实写入。
 - `--quiet`：只在有变更时打印结果。
+
+输出前缀：
+
+- `[写入]` 新建或更新；`[跳过]` 内容已是最新；`[未部署]` 工具未安装（`tool_dir` 缺失），本次不碰它；`[dry-run]` 预览结果（不落盘）。
 
 ## 开发与测试
 
