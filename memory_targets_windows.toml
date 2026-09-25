@@ -109,6 +109,9 @@ Git 提交规则:
 name = "qoder"
 path = "C:/Users/lenovo/.qoder/AGENTS.md"
 footer = """
+Bash 工具中不要用绝对路径，改用 dir_path 参数指定工作目录，命令内用相对路径
+不要用 `cd /d` 或 `cd D:\\...`，Git Bash 不支持
+复杂或任务重时，先列出步骤让用户确认，而不是直接开干
 Git 提交规则:
 - 创建 Git 提交时，提交信息末尾必须添加：Agent: Qoder
 - 示例：git commit -m "修复同步逻辑" --trailer "Agent: Qoder"
