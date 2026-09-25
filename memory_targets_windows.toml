@@ -104,3 +104,12 @@ Git 提交规则:
 - 创建 Git 提交时，提交信息末尾必须添加：Agent: WorkBuddy
 - 示例：git commit -m "修复同步逻辑" --trailer "Agent: WorkBuddy"
 """
+
+[[targets]]
+name = "qoder"
+path = "C:/Users/lenovo/.qoder/AGENTS.md"
+footer = """
+Git 提交规则:
+- 创建 Git 提交时，提交信息末尾必须添加：Agent: Qoder
+- 示例：git commit -m "修复同步逻辑" --trailer "Agent: Qoder"
+"""
