@@ -99,6 +99,13 @@ Git 提交规则:
 name = "workbuddy ai"
 path = "C:/Users/lenovo/.workbuddy-ai/MEMORY.md"
 footer = """
+## WorkBuddy 专属
+
+- 本地文档编辑技能（`tencent-local-office-edit`）会拉起常驻进程 `editor_sdk.exe`（腾讯文档 AI 引擎，日志在 `~/.workbuddy-ai/logs/editor_sdk/`），任务结束**不会自动退出**：空闲时工作集约 60MB，加载文档后 400MB+；被 kill 后需要时会自动重生。
+- 用该技能完成本地 docx/xlsx 任务后，**立即结束 `editor_sdk.exe`**（`Stop-Process -Name editor_sdk -Force`），除非用户明确还要继续编辑；总结里说明已释放。
+- 纯数据读写优先走**不拉起 editor_sdk** 的通道：表格用 `sheetagent` 子代理，生成 Word/Excel 用 `tencent-docx` / `excel-generation`。
+- 长期自动回收由 `D:\\py\\clean_up\\scripts\\editor_sdk_idle_guard.ps1` 负责（空闲 >= 30 分钟且私有内存 < 150MB 才回收）。
+
 未经用户同意或用户主动要求,不得新建技能
 Git 提交规则:
 - 创建 Git 提交时，提交信息末尾必须添加：Agent: WorkBuddy
