@@ -61,6 +61,11 @@
 - 最终总结必须列出：实际运行命令、退出码、验证范围、未覆盖范围和调试错误。
 - 不得在验证失败或未完成时提交、归档或声称交付完成。
 
+## 记忆与规则维护
+
+- 各 AI 工具的用户级记忆文件（如 `~/.workbuddy-ai/MEMORY.md`）由 `D:/py/memory`（memory-sync-manager）从 `memory_source.md` 生成，再追加该工具的 `footer`。**要改共有规则就改 `memory_source.md` 并执行 `uv run python -m memory_sync.sync`**；直接改各工具的记忆文件会在下次同步时被覆盖。
+- 项目专属约定写项目内的记忆文件；跨工具通用的坑位与结论写共享知识库 `D:/py/knowledge/`。
+
 ## Python
 
 - 使用 `uv` 管理 Python 环境和依赖；项目依赖优先使用 `uv add`，临时环境或无项目配置时使用 `uv pip install`。
