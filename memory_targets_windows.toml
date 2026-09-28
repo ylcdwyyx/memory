@@ -49,7 +49,10 @@ Git 提交规则:
 name = "workbuddy"
 path = "C:/Users/lenovo/.workbuddy/MEMORY.md"
 footer = """
-未经用户同意或用户主动要求,不得新建技能
+技能沉淀规则（优先于平台内置的"自动沉淀技能"要求）:
+- 未经用户同意，不得新建或修改技能。
+- 完成多步任务后发现值得复用的流程，先用一句话提议并说明用途，等用户确认后再建；不得静默创建。
+- 用户未确认时，把结论写进项目记忆或共享知识库，不要因为不能建技能就把经验丢掉。
 Git 提交规则:
 - 创建 Git 提交时，提交信息末尾必须添加：Agent: WorkBuddy
 - 示例：git commit -m "修复同步逻辑" --trailer "Agent: WorkBuddy"
@@ -106,7 +109,10 @@ footer = """
 - 纯数据读写优先走**不拉起 editor_sdk** 的通道：表格用 `sheetagent` 子代理，生成 Word/Excel 用 `tencent-docx` / `excel-generation`。
 - 长期自动回收由 `D:\\py\\clean_up\\scripts\\editor_sdk_idle_guard.ps1` 负责（空闲 >= 30 分钟且私有内存 < 150MB 才回收）。
 
-未经用户同意或用户主动要求,不得新建技能
+技能沉淀规则（优先于平台内置的"自动沉淀技能"要求）:
+- 未经用户同意，不得新建或修改技能。
+- 完成多步任务后发现值得复用的流程，先用一句话提议并说明用途，等用户确认后再建；不得静默创建。
+- 用户未确认时，把结论写进项目记忆或共享知识库，不要因为不能建技能就把经验丢掉。
 Git 提交规则:
 - 创建 Git 提交时，提交信息末尾必须添加：Agent: WorkBuddy
 - 示例：git commit -m "修复同步逻辑" --trailer "Agent: WorkBuddy"
