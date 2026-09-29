@@ -129,3 +129,15 @@ Git 提交规则:
 - 创建 Git 提交时，提交信息末尾必须添加：Agent: Qoder
 - 示例：git commit -m "修复同步逻辑" --trailer "Agent: Qoder"
 """
+
+[[targets]]
+name = "copilot"
+path = "C:/Users/lenovo/.copilot/copilot-instructions.md"
+tool_dir = "C:/Users/lenovo/.copilot"
+footer = """
+Copilot 自定义指令的改动不会立即在活动会话生效，需退出后重启会话（`copilot --continue` 或 `/new`）。
+本机为 Windows，终端可能是 PowerShell 或 Git Bash，注意两者语法差异。
+Git 提交规则:
+- 创建 Git 提交时，提交信息末尾必须添加：Agent: Copilot
+- 示例：git commit -m "修复同步逻辑" --trailer "Agent: Copilot"
+"""
