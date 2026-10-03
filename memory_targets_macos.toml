@@ -2,17 +2,17 @@ source = "memory_source.md"
 
 [[targets]]
 name = "mac claude"
-path = "/Users/mark/.claude/CLAUDE.md"
+path = "/Users/marc/.claude/CLAUDE.md"
 footer = "当前环境为macOS"
 
 [[targets]]
 name = "mac iflow"
-path = "/Users/mark/.iflow/IFLOW.md"
+path = "/Users/marc/.iflow/IFLOW.md"
 header = "## iFlow Added Memories"
 
 [[targets]]
 name = "mac codex"
-path = "/Users/mark/.codex/AGENTS.md"
+path = "/Users/marc/.codex/AGENTS.md"
 footer = """
 环境:
 - 操作系统: macOS
