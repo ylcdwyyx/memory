@@ -20,3 +20,18 @@ footer = """
 编码: 文件统一使用 UTF-8
 脚本默认以无参数运行
 """
+
+# aider 本身不自动加载记忆文件，靠 ~/.aider.conf.yml 里的 read: 指向本文件带入每次会话。
+[[targets]]
+name = "mac aider"
+path = "/Users/marc/.aider/MEMORY.md"
+
+[[targets]]
+# gemini-cli 全局上下文文件，启动时自动加载
+name = "mac gemini"
+path = "/Users/marc/.gemini/GEMINI.md"
+
+[[targets]]
+# qwen-code（gemini-cli fork）全局上下文文件，启动时自动加载
+name = "mac qwen"
+path = "/Users/marc/.qwen/QWEN.md"
