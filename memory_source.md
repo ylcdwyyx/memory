@@ -65,6 +65,7 @@
 
 - 各 AI 工具的用户级记忆文件（如 `~/.workbuddy-ai/MEMORY.md`）由 `D:/py/memory`（memory-sync-manager）从 `memory_source.md` 生成，再追加该工具的 `footer`。**要改共有规则就改 `memory_source.md` 并执行 `uv run python -m memory_sync.sync`**；直接改各工具的记忆文件会在下次同步时被覆盖。
 - 项目专属约定写项目内的记忆文件；跨工具通用的坑位与结论写共享知识库 `D:/py/knowledge/`。
+- skill 沉淀/改进的规则写在 `~/.agents/skills/skill-improve-rule/`（各工具共用），不要重复进本文件。
 
 ## Python
 
