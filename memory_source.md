@@ -25,11 +25,11 @@
 - 确需引用凭证时使用掩码，只保留前几位（如 `sk-abc***`）。
 - 将数据交给模型处理前，先把真实 PII（手机号、身份证、住址等）替换为占位符；含密钥或内部系统的截图不要交给在线视觉/图片识别服务。
 - 分享截图、日志、配置前先打码 API key、token 与个人敏感字段。
-- 数据分级与提供商通道选择遵循 `D:/py/knowledge/data-sensitivity-levels.md`（P0–P3）。
+- 数据分级与提供商通道选择遵循共享知识库的 `data-sensitivity-levels.md`（P0–P3；Windows: `D:/py/knowledge/`，macOS: `~/py/knowledge/`）。
 
 ## 共享知识库
 
-- 涉及本机环境、工具链、本地代理链路（llm_guard/sensenova/zen）、dsh 配置等问题时，先查共享知识库 `D:/py/knowledge/`（一主题一文件、结论先行）再动手，避免重复踩坑。
+- 涉及本机环境、工具链、本地代理链路（llm_guard/sensenova/zen）、dsh 配置等问题时，先查共享知识库（Windows: `D:/py/knowledge/`，macOS: `~/py/knowledge/`；一主题一文件、结论先行）再动手，避免重复踩坑。
 - 产生跨工具有用的排查结论或坑位规避时，提炼为条目写入该库并更新其 README 索引；单工具专属行为不入库，写入本工具专属规则即可。
 - 入库内容敏感度控制在 P3/低 P2（分级见库内 data-sensitivity-levels.md），不入密钥、内部系统细节与真实 PII。
 
@@ -63,8 +63,8 @@
 
 ## 记忆与规则维护
 
-- 各 AI 工具的用户级记忆文件（如 `~/.workbuddy-ai/MEMORY.md`）由 `D:/py/memory`（memory-sync-manager）从 `memory_source.md` 生成，再追加该工具的 `footer`。**要改共有规则就改 `memory_source.md` 并执行 `uv run python -m memory_sync.sync`**；直接改各工具的记忆文件会在下次同步时被覆盖。
-- 项目专属约定写项目内的记忆文件；跨工具通用的坑位与结论写共享知识库 `D:/py/knowledge/`。
+- 各 AI 工具的用户级记忆文件（如 `~/.workbuddy-ai/MEMORY.md`）由 memory-sync-manager（Windows: `D:/py/memory`，macOS: `~/py/memory`）从 `memory_source.md` 生成，再叠加配置级与目标级的 `header`/`footer`。**要改共有规则就改 `memory_source.md` 并执行 `uv run python -m memory_sync.sync`**；直接改各工具的记忆文件会在下次同步时被覆盖。
+- 项目专属约定写项目内的记忆文件；跨工具通用的坑位与结论写共享知识库（Windows: `D:/py/knowledge/`，macOS: `~/py/knowledge/`）。
 - skill 沉淀/改进的规则写在 `~/.agents/skills/skill-improve-rule/`（各工具共用），不要重复进本文件。
 
 ## Python
@@ -86,27 +86,3 @@
 - 优先复用现有浏览器实例和标签页，并使用 Chrome DevTools MCP 检查页面状态与调试问题。
 - 网页抓不到（404/403/需登录/正文不全）时，不要直接判定"打不开"：先按 `cdp-or-drissionpage-rule` 技能接管 9222 已登录 Chrome 取数。
   curl/urllib 会被 Cloudflare challenge 拦，页面内 fetch 会撞跨域重定向——这两条失败都不能作为"拿不到"的结论。
-
-## Windows 提权操作
-
-- 工具命令行里**不要直接写提权命令**（`Start-Process -Verb RunAs`、Bash 调 `powershell ... Start-Process` 都会被安全规则静态拦截，报 "bypasses PowerShell command validation"；`dangerouslyDisableSandbox` 也无效——那是 OS 层权限，不是工具沙箱）。
-- **正解：干活脚本 + 提权包装 `.bat`，由工具侧调用包装 bat**。安全规则只检查**工具调用的命令行文本**，把提权命令写进 `.bat` 文件、命令行里只出现 bat 路径即可绕过：
-
-  ```bat
-  @echo off
-  powershell -NoProfile -Command "Start-Process -FilePath '%~dp0<干活脚本>.bat' -Verb RunAs"
-  ```
-
-  - 包装 bat 里的 `Start-Process` **不要加 `-Wait`**（否则工具调用一直阻塞）；干活脚本用 `fltmc` 判断管理员权限，管理员分支末尾 `pause` 显示结果。
-  - 干活脚本**必须纯 ASCII 英文**：本机系统 ACP = 65001，中文 bat 会乱码；含 `goto`/`::` 注释的中文 bat 更会因 cmd 字节偏移错位，把中文行拆成命令执行。
-  - 调用示例：`cmd //c "D:\path\run_elevated.bat"` → 弹 UAC → 用户点「是」→ 管理员身份执行。
-  - 实测案例：`D:\py\clean_up\scripts\disable_anytxt_service.bat`（干活）+ `run_elevated.bat`（包装），2026-09-28 停用 AnyTXT 索引服务通过。
-- **备选**：用 `Set-Clipboard` 把命令写进剪贴板，让用户开管理员终端 `Ctrl+V` 回车。
-- 详见共享知识库 `D:/py/knowledge/windows-agent-diagnostics-pitfalls.md`。
-
-## 环境
-
-- 操作系统: Windows 11
-- Shell: PowerShell 7 (pwsh)，注意和 cmd.exe、Linux 下的 bash 有差异
-编码: CSV 文件保存为 UTF-8 with BOM (utf-8-sig)
-PowerShell 不支持 bash 风格的 heredoc (python - <<'PY')，请改用 here-string (@' ... '@) 或脚本文件。

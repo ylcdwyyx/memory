@@ -1,9 +1,20 @@
 source = "memory_source.md"
 
+# 配置级全局 footer：追加到每个目标文件末尾（目标专属 footer 在前，全局在后）。
+# 平台专属内容（macOS 环境说明）从 memory_source.md 拆到这里；
+# Windows 对应内容见 memory_targets_windows.toml。
+footer = """
+## 环境
+
+- 操作系统: macOS
+- 终端与 Shell: iTerm2 + zsh 登录 shell；命令按 POSIX/bash 风格写，勿用 PowerShell/cmd 语法
+- 编码: 文件统一使用 UTF-8
+- 脚本默认以无参数运行
+"""
+
 [[targets]]
 name = "mac claude"
 path = "/Users/marc/.claude/CLAUDE.md"
-footer = "当前环境为macOS"
 
 [[targets]]
 name = "mac iflow"
@@ -13,13 +24,6 @@ header = "## iFlow Added Memories"
 [[targets]]
 name = "mac codex"
 path = "/Users/marc/.codex/AGENTS.md"
-footer = """
-环境:
-- 操作系统: macOS
-- Shell: 默认终端
-编码: 文件统一使用 UTF-8
-脚本默认以无参数运行
-"""
 
 # aider 本身不自动加载记忆文件，靠 ~/.aider.conf.yml 里的 read: 指向本文件带入每次会话。
 [[targets]]

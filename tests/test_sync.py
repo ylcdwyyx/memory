@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import sys
 from pathlib import Path
 
 import pytest
@@ -315,12 +316,79 @@ tool_dir = 123
         sync_memories(config)
 
 
-def test_shipped_windows_config_tool_dir_is_ancestor_of_path() -> None:
-    """真实配置里每个目标的 tool_dir 都必须是 path 的祖先（或等于其父目录）。"""
-    config = Path(sync_module.__file__).resolve().parents[2] / "memory_targets_windows.toml"
-    _, _, targets = sync_module._load_config(config)
+@pytest.mark.parametrize(
+    "name",
+    ["memory_targets_windows.toml", "memory_targets_macos.toml"],
+)
+def test_shipped_config_tool_dir_is_ancestor_of_path(name: str) -> None:
+    """真实配置必须能被解析，且每个目标的 tool_dir 都是 path 的祖先（或其父目录）。
 
-    assert targets
+    非当前平台的配置里路径保持原样（如 macOS 上 `C:/...` 是相对路径），
+    所以仅在当前平台上额外断言 tool_dir 为绝对路径。
+    """
+    project_root = Path(sync_module.__file__).resolve().parents[2]
+    config = project_root / name
+    _, _, targets, _, _ = sync_module._load_config(config)
+
+    matches_platform = (
+        name == "memory_targets_macos.toml" and sys.platform == "darwin"
+    ) or (
+        name == "memory_targets_windows.toml"
+        and (sync_module.RUNNING_ON_WINDOWS or sync_module.RUNNING_ON_WSL)
+    )
+
+    assert targets, config
     for target in targets:
-        assert target.tool_dir.is_absolute(), target.path
         assert target.tool_dir in target.path.parents, target.path
+        if matches_platform:
+            assert target.tool_dir.is_absolute(), target.path
+
+
+def test_global_header_footer_merge_order(tmp_path: Path) -> None:
+    source = write(tmp_path / "source.md", "正文")
+    (tmp_path / "out").mkdir()
+    config = tmp_path / "config.toml"
+    config.write_text(
+        """
+source = "source.md"
+header = "全局头"
+footer = "全局脚"
+
+[[targets]]
+path = "out/a.md"
+header = "目标头"
+footer = "目标脚"
+
+[[targets]]
+path = "out/b.md"
+""".strip(),
+        encoding="utf-8",
+    )
+
+    results = sync_memories(config)
+
+    a_text = (tmp_path / "out/a.md").read_text(encoding="utf-8")
+    b_text = (tmp_path / "out/b.md").read_text(encoding="utf-8")
+
+    # header 全局在前，footer 全局在后（全局内容贴文件两端），块之间留空行
+    assert a_text == "全局头\n\n目标头\n\n正文\n\n目标脚\n\n全局脚\n"
+    assert b_text == "全局头\n\n正文\n\n全局脚\n"
+    assert all(not result.skipped for result in results)
+    assert source.exists()
+
+
+def test_global_header_footer_must_be_string(tmp_path: Path) -> None:
+    write(tmp_path / "source.md", "内容")
+    config = tmp_path / "config.toml"
+    config.write_text(
+        """
+footer = 123
+
+[[targets]]
+path = "out/a.md"
+""".strip(),
+        encoding="utf-8",
+    )
+
+    with pytest.raises(ValueError):
+        sync_memories(config)

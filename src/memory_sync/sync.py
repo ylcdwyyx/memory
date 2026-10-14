@@ -95,17 +95,23 @@ def _ensure_trailing_newline(block: str) -> str:
     return block if block.endswith("\n") else block + "\n"
 
 
+def _merge_parts(*parts: Optional[str]) -> Optional[str]:
+    blocks = [_ensure_trailing_newline(part) for part in parts if part]
+    return "\n".join(blocks) or None
+
+
 def _compose_content(body: str, header: Optional[str], footer: Optional[str]) -> str:
+    # 块之间插入空行，保证 Markdown 里标题/段落不会挤在上一行末尾
     parts: List[str] = []
     if header:
         parts.append(_ensure_trailing_newline(header))
     parts.append(_ensure_trailing_newline(body))
     if footer:
         parts.append(_ensure_trailing_newline(footer))
-    return "".join(parts)
+    return "\n".join(parts)
 
 
-def _load_config(path: Path) -> tuple[Optional[Path], bool, list[TargetConfig]]:
+def _load_config(path: Path) -> tuple[Optional[Path], bool, list[TargetConfig], Optional[str], Optional[str]]:
     if not path.is_file():
         raise FileNotFoundError(f"配置文件 {path} 不存在")
 
@@ -126,6 +132,16 @@ def _load_config(path: Path) -> tuple[Optional[Path], bool, list[TargetConfig]]:
         source_path = _resolve_path(path.parent, Path(raw_source))
     else:
         raise ValueError("配置文件中的 source 字段必须是字符串或省略")
+
+    # 配置级（全局）header/footer：适用于所有目标。
+    # header 顺序为「全局在前、目标在后」，footer 顺序为「目标在前、全局在后」，
+    # 即全局内容始终更靠近文件两端（平台环境说明等通用信息放这里）。
+    global_header = data.get("header")
+    global_footer = data.get("footer")
+    if global_header is not None and not isinstance(global_header, str):
+        raise ValueError("配置文件中的 header 字段必须是字符串或省略")
+    if global_footer is not None and not isinstance(global_footer, str):
+        raise ValueError("配置文件中的 footer 字段必须是字符串或省略")
 
     raw_targets = data.get("targets")
     if not isinstance(raw_targets, list) or not raw_targets:
@@ -163,7 +179,7 @@ def _load_config(path: Path) -> tuple[Optional[Path], bool, list[TargetConfig]]:
             )
         )
 
-    return source_path, use_inline_source, targets
+    return source_path, use_inline_source, targets, global_header, global_footer
 
 
 def _resolve_path(base: Path, candidate: Path) -> Path:
@@ -218,7 +234,13 @@ def _from_wsl_unc_path(text: str) -> Path:
     return Path("/") / inner_path
 
 
-def _sync_single(target: TargetConfig, payload: str, dry_run: bool) -> SyncResult:
+def _sync_single(
+    target: TargetConfig,
+    payload: str,
+    dry_run: bool,
+    global_header: Optional[str] = None,
+    global_footer: Optional[str] = None,
+) -> SyncResult:
     # 工具没装就整个跳过：既不写文件，也不替它把目录建出来（否则会在机器上留下空壳配置目录）
     if not target.tool_dir.is_dir():
         return SyncResult(
@@ -229,7 +251,9 @@ def _sync_single(target: TargetConfig, payload: str, dry_run: bool) -> SyncResul
             skip_reason=f"工具不存在（{target.tool_dir} 缺失）",
         )
 
-    new_content = _compose_content(payload, target.header, target.footer)
+    header = _merge_parts(global_header, target.header)
+    footer = _merge_parts(target.footer, global_footer)
+    new_content = _compose_content(payload, header, footer)
     existing: Optional[str] = None
     if target.path.is_file():
         existing = target.path.read_text(encoding=target.encoding)
@@ -253,7 +277,9 @@ def sync_memories(
     dry_run: bool = False,
 ) -> list[SyncResult]:
     config_path = config if config.is_absolute() else config.resolve()
-    source_path, use_inline_source, targets = _load_config(config_path)
+    source_path, use_inline_source, targets, global_header, global_footer = _load_config(
+        config_path
+    )
 
     if override_source is not None:
         source_path = (
@@ -272,7 +298,10 @@ def sync_memories(
             raise FileNotFoundError(f"源文件 {source_path} 不存在")
         body = source_path.read_text(encoding="utf-8")
 
-    results = [_sync_single(target, body, dry_run) for target in targets]
+    results = [
+        _sync_single(target, body, dry_run, global_header, global_footer)
+        for target in targets
+    ]
     return results
 
 

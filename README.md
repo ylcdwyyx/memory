@@ -20,9 +20,12 @@ memory-sync-manager 通过 `memory_source.md` 统一维护多款 AI 编程工具
 ## 快速开始
 
 1. 在 `memory_source.md` 中维护所有 Agent 都应遵守的共有规则。
-2. 修改当前系统会使用的配置文件（Windows/WSL 对应 `memory_targets_windows.toml`，macOS 对应 `memory_targets_macos.toml`），将 `path` 指向各工具的用户记忆文件；使用可选字段 `header`、`footer` 维护工具专属规则。
+2. 修改当前系统会使用的配置文件（Windows/WSL 对应 `memory_targets_windows.toml`，macOS 对应 `memory_targets_macos.toml`），将 `path` 指向各工具的用户记忆文件。
+   - **配置级 `header` / `footer`**（顶层字段，可选）：适用于该配置下所有目标，用来放平台专属内容（如环境说明、Windows 提权操作），这样 `memory_source.md` 只保留跨平台共有规则。合成顺序为 `全局 header → 目标 header → 正文 → 目标 footer → 全局 footer`，即全局内容始终贴文件两端。
+   - **目标级 `header` / `footer`**（每个 `[[targets]]` 内，可选）：该工具专属规则；与配置级内容叠加，不覆盖。
    - 在 WSL 中可以直接填写 Windows 风格路径（如 `C:/Users/...`），脚本会自动转换为 `/mnt/c/...`。
    - 可选字段 `tool_dir`：该工具是否「装在这台机器上」的锚点目录，不存在则跳过该目标。**默认取 `path` 的父目录**，多数工具（`~/.claude/CLAUDE.md`、`~/.codex/AGENTS.md` 这类）不用写；当目标文件位于工具内部的深层子目录时（如 `~/.trae-cn/user_rules/x.md`、`~/.accio/accounts/<id>/agents/<did>/agent-core/MEMORY.md`），必须显式指到工具根目录，这样「工具在、子目录缺失」时才允许按需创建。
+   - 含反斜杠路径（如 `D:\py\...`）的全局 footer 建议用 TOML 字面量字符串 `'''...'''`，避免 `\p`、`\b` 之类被当作转义序列导致解析失败。
 3. 执行同步：
 
 ```bash
