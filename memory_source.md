@@ -65,6 +65,7 @@
 
 - 各 AI 工具的用户级记忆文件（如 `~/.workbuddy-ai/MEMORY.md`）由 memory-sync-manager（Windows: `D:/py/memory`，macOS: `~/py/memory`）从 `memory_source.md` 生成，再叠加配置级与目标级的 `header`/`footer`。**要改共有规则就改 `memory_source.md` 并执行 `uv run python -m memory_sync.sync`**；直接改各工具的记忆文件会在下次同步时被覆盖。
 - 项目专属约定写项目内的记忆文件；跨工具通用的坑位与结论写共享知识库（Windows: `D:/py/knowledge/`，macOS: `~/py/knowledge/`）。
+- **进入项目先读 `<项目>/.agents/RECENT.md`**（存在时）：里面有近 14 天提交、工作区是否干净、其他 agent 开过哪些会话。它由 `D:/py/agent/scripts/recent_work.py` 自动生成，**不要手改**；生成时间超过 3 天或与 git 状态不符时先跑 `python D:/py/agent/scripts/recent_work.py <项目路径>` 刷新再读。它只提供线索，查原话仍走 `search_sessions.py`。
 - skill 沉淀/改进的规则写在 `~/.agents/skills/skill-improve-rule/`（各工具共用），不要重复进本文件。
 
 ## Python
