@@ -5,7 +5,11 @@ param(
 
     # 共享调用方（如 wa）以 & 调用本模板时，$PSScriptRoot 指向模板自身目录，
     # 推不出调用方项目根，需显式传入；省略时仍按「模板被复制到 <项目>\scripts\」推导。
-    [string]$ProjectRoot = ""
+    [string]$ProjectRoot = "",
+
+    # 枚举时要跳过的目录前缀（/ 结尾）。项目可在 wrapper 里追加自己的杂物目录
+    # （如 wa 的 runtime/、data/），默认值与历史行为一致。
+    [string[]]$SkipPrefix = @(".venv/", "archive/", "latest_images/", "downloads/", "node_modules/")
 )
 
 # 跨项目 Python 验收模板。当前调用方：wechat、wa、business、alibaba。
@@ -52,21 +56,30 @@ function Get-RepoFiles {
 }
 
 function Invoke-ProjectPython {
-    param([Parameter(ValueFromRemainingArguments = $true)][string[]]$Arguments)
-    & uv run --python $python python @Arguments
+    # 注意：这里不能用高级函数 param([string[]]$Arguments + ValueFromRemainingArguments)。
+    # PowerShell 会把调用方传入的数组实参折叠成「单个空格连接串」再绑定（2026-11-01
+    # 实测，两种调用写法都复现），py_compile 会收到一个整串文件名报 No such file
+    # or directory。简单函数用 $args 原样收集、@args 逐元素 splat，实测展开正常。
+    & uv run --python $python python @args
     if ($LASTEXITCODE -ne 0) {
-        throw "命令失败（退出码 $LASTEXITCODE）：python $($Arguments -join ' ')"
+        throw "命令失败（退出码 $LASTEXITCODE）：python $($args -join ' ')"
     }
 }
 
 Push-Location $projectRoot
 try {
     Write-Host "== 验收：Python 语法检查 ==" -ForegroundColor Cyan
-    $pythonFiles = @(Get-RepoFiles -Include @("*.py"))
+    $pythonFiles = @(Get-RepoFiles -Include @("*.py") -SkipPrefix $SkipPrefix)
     if ($pythonFiles.Count -eq 0) {
         throw "未找到 Python 文件"
     }
-    Invoke-ProjectPython -m py_compile @pythonFiles
+    # Windows 单条命令行上限 32K：wa 全仓 *.py 数千个，一把传给 uv run 会报
+    # 「文件名或扩展名太长」导致 hook 永远失败。按 200 个/批切分逐批编译。
+    $batchSize = 200
+    for ($i = 0; $i -lt $pythonFiles.Count; $i += $batchSize) {
+        $end = [Math]::Min($i + $batchSize - 1, $pythonFiles.Count - 1)
+        Invoke-ProjectPython -m py_compile @($pythonFiles[$i..$end])
+    }
 
     if ($Scope -eq "fast") {
         Write-Host "== 局部自动验收通过 ==" -ForegroundColor Green
@@ -74,12 +87,17 @@ try {
     }
 
     Write-Host "== 验收：完整 pytest ==" -ForegroundColor Cyan
-    $testTargets = @(Get-RepoFiles -Include @("test_*.py", "*_test.py") |
+    $testTargets = @(Get-RepoFiles -Include @("test_*.py", "*_test.py") -SkipPrefix $SkipPrefix |
         Where-Object { $_ -match "^(tests|test)[\\/]" -or $_ -match "[\\/]tests[\\/]" })
     if ($testTargets.Count -eq 0) {
         throw "未找到受管理的测试文件（tests/ 或 test/）；请先补充测试目录或项目级验证脚本。"
     }
-    Invoke-ProjectPython -m pytest -q @testTargets
+    # 测试文件过千时同样会撞 32K 命令行上限，逐批传给 pytest；
+    # 任一批非 0 都会在 Invoke-ProjectPython 里 throw，失败不会被吞。
+    for ($i = 0; $i -lt $testTargets.Count; $i += $batchSize) {
+        $end = [Math]::Min($i + $batchSize - 1, $testTargets.Count - 1)
+        Invoke-ProjectPython -m pytest -q @($testTargets[$i..$end])
+    }
 
     if ($Scope -eq "full") {
         Write-Host "== 自动验收通过 ==" -ForegroundColor Green
