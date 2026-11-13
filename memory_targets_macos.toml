@@ -24,6 +24,9 @@ header = "## iFlow Added Memories"
 [[targets]]
 name = "mac codex"
 path = "/Users/marc/.codex/AGENTS.md"
+footer = """
+子代理：本工具一律不派发子代理（覆盖通用子代理规则）。
+"""
 
 # aider 本身不自动加载记忆文件，靠 ~/.aider.conf.yml 里的 read: 指向本文件带入每次会话。
 [[targets]]

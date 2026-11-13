@@ -49,7 +49,7 @@ Git 提交规则:
 name = "codex"
 path = "C:/Users/lenovo/.codex/AGENTS.md"
 footer = """
-不要使用子代理
+子代理：本工具一律不派发子代理（覆盖通用子代理规则）。
 Git 提交规则:
 - 创建 Git 提交时，提交信息末尾必须添加：Agent: Codex
 - 示例：git commit -m "修复同步逻辑" --trailer "Agent: Codex"
